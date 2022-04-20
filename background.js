@@ -1,4 +1,5 @@
 const REFRESH_INTERVAL_SEC = 60 * 10;
+const SKIP_CURRENT_TAB = false;
 
 const refreshTabIds = new Set();
 let refreshIntervalId = null;
@@ -43,7 +44,7 @@ function startRefreshInterval() {
   refreshIntervalId = setInterval(async () => {
     const currentTab = await getCurrentTab();
     for (const tabId of refreshTabIds) {
-      if (tabId === currentTab.id) {
+      if (SKIP_CURRENT_TAB && tabId === currentTab.id) {
         continue;
       }
       browser.tabs.reload(tabId).catch(() => {
