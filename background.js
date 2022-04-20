@@ -1,6 +1,14 @@
 const REFRESH_INTERVAL_SEC = 60 * 10;
 const SKIP_CURRENT_TAB = false;
 
+const SUPPORTED_BROWSER_API = ["firefox", "chrome"];
+let detected_browser_api = "firefox";
+
+if (window.browser == null && window.chrome != null) {
+  detected_browser_api = "chrome";
+  window.browser = window.chrome;
+}
+
 const refreshTabIds = new Set();
 let refreshIntervalId = null;
 
@@ -36,8 +44,27 @@ function toggleTabId(tabId) {
 }
 
 async function getCurrentTab() {
-  const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+  switch (detected_browser_api) {
+    case "firefox":
+      return await getCurrentTabFirefox();
+    case "chrome":
+      return await getCurrentTabChrome();
+    default:
+      throw new Error("Unknown browser API");
+  }
+}
+
+async function getCurrentTabFirefox() {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   return tabs[0];
+}
+
+async function getCurrentTabChrome() {
+  return new Promise((resolve, reject) => {
+    browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      resolve(tabs[0]);
+    });
+  });
 }
 
 function startRefreshInterval() {
@@ -47,12 +74,38 @@ function startRefreshInterval() {
       if (SKIP_CURRENT_TAB && tabId === currentTab.id) {
         continue;
       }
-      browser.tabs.reload(tabId).catch(() => {
+      reloadTab(tabId).catch(() => {
         // Invalid tab id. Probably a deleted tab.
         removeTabId(tabId);
       });
     }
   }, REFRESH_INTERVAL_SEC * 1000);
+}
+
+async function reloadTab(tabId) {
+  switch (detected_browser_api) {
+    case "firefox":
+      return await reloadTabFirefox(tabId);
+    case "chrome":
+      return await reloadTabChrome(tabId);
+    default:
+      throw new Error("Unknown browser API");
+  }
+}
+
+async function reloadTabFirefox(tabId) {
+  return browser.tabs.reload(tabId);
+}
+
+async function reloadTabChrome(tabId) {
+  return new Promise((resolve, reject) => {
+    browser.tabs.reload(tabId, (data) => {
+      if (chrome.runtime.lastError) {
+        reject(new Error(chrome.runtime.lastError.message));
+      }
+      resolve();
+    });
+  });
 }
 
 function stopRefreshInterval() {

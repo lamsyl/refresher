@@ -4,6 +4,8 @@ Browser extension to auto refresh selected tabs every 10 min.
 
 Tested browser
 - Firefox
+- Chrome
+- Brave
 
 ## Install
 
@@ -12,6 +14,20 @@ NOTE: This extension has not been put into any extension store.
 ### Firefox
 
 Follow doc on [Temporary installation in Firefox](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/)
+
+### Chrome
+
+1. Go to chrome://extensions/
+2. Turn on developer mode
+3. Load unpacked. Select extension directory.
+4. Pin extension.
+
+### Brave
+
+1. Go to brave://extensions/
+2. Turn on developer mode
+3. Load unpacked. Select extension directory.
+4. Pin extension.
 
 ## Usage
 
