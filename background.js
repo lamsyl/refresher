@@ -118,4 +118,6 @@ async function toggleAutoRefresh() {
   toggleTabId(currentTab.id);
 }
 
+// clear badge text when the extension is loaded (e.g. at browser startup)
+updateBadgeText();
 browser.browserAction.onClicked.addListener(toggleAutoRefresh);
